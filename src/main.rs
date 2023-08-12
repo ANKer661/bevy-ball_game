@@ -1,9 +1,11 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
 
-pub const PLAYER_SIZE: f32 = 64.0;  // This is player sprite size.
+pub const PLAYER_SIZE: f32 = 64.0; // This is player sprite size.
 pub const PLAYER_SPEED: f32 = 500.0;
 pub const NUMBER_OF_ENEMY: usize = 4;
+pub const ENEMY_SPEED: f32 = 200.0;
+pub const ENEMY_SIZE: f32 = 64.0;
 
 fn main() {
     App::new()
@@ -13,6 +15,9 @@ fn main() {
         .add_systems(Startup, spawn_enemy)
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
+        .add_systems(Update, enemy_movement)
+        .add_systems(Update, update_enemy_direction)
+        .add_systems(Update, confine_enemy_movement)
         .run()
 }
 
@@ -20,7 +25,9 @@ fn main() {
 pub struct Player {}
 
 #[derive(Component)]
-pub struct Enemy {}
+pub struct Enemy {
+    pub direction: Vec2,
+}
 
 pub fn spwan_player(
     mut commands: Commands,
@@ -56,7 +63,9 @@ pub fn spawn_enemy(
                 texture: asset_server.load("sprites/ball_red_large.png"),
                 ..default()
             },
-            Enemy {},
+            Enemy {
+                direction: Vec2::new(random::<f32>(), random::<f32>()).normalize(),
+            },
         ));
     }
 }
@@ -85,10 +94,10 @@ pub fn player_movement(
             direction += Vec3::new(1.0, 0.0, 0.0);
         }
         if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-            direction += Vec3::new(-1.0, 1.0, 0.0);
+            direction += Vec3::new(0.0, 1.0, 0.0);
         }
         if keyboard_input.pressed(KeyCode::Down) || keyboard_input.pressed(KeyCode::S) {
-            direction += Vec3::new(-1.0, -1.0, 0.0);
+            direction += Vec3::new(0.0, -1.0, 0.0);
         }
 
         if direction.length() > 0.0 {
@@ -101,7 +110,7 @@ pub fn player_movement(
 
 pub fn confine_player_movement(
     mut player_query: Query<&mut Transform, With<Player>>,
-    window_query: Query<&Window, With<PrimaryWindow>>
+    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     if let Ok(mut player_transform) = player_query.get_single_mut() {
         let window = window_query.get_single().unwrap();
@@ -129,5 +138,91 @@ pub fn confine_player_movement(
         }
 
         player_transform.translation = translation;
+    }
+}
+
+pub fn enemy_movement(mut enemy_qurey: Query<(&mut Transform, &Enemy)>, time: Res<Time>) {
+    for (mut transform, enemy) in enemy_qurey.iter_mut() {
+        let direction = Vec3::new(enemy.direction.x, enemy.direction.y, 0.0);
+        transform.translation += direction * ENEMY_SPEED * time.delta_seconds();
+    }
+}
+
+pub fn update_enemy_direction(
+    mut enemy_query: Query<(&Transform, &mut Enemy)>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    mut commands: Commands,
+    asset_sever: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    let half_enemy_size = ENEMY_SIZE / 2.0;
+    let x_min = 0.0 + half_enemy_size;
+    let x_max = window.width() - half_enemy_size;
+    let y_min = 0.0 + half_enemy_size;
+    let y_max = window.height() - half_enemy_size;
+
+    for (transform, mut enemy) in enemy_query.iter_mut() {
+        let mut direction_changed = false;
+
+        let translation = transform.translation;
+        if translation.x < x_min || translation.x > x_max {
+            enemy.direction.x *= -1.0;
+            direction_changed = true;
+        }
+        if translation.y < y_min || translation.y > y_max {
+            enemy.direction.y *= -1.0;
+            direction_changed = true;
+        }
+
+        // Play SFX
+        if direction_changed {
+            let sound_effect_1 = asset_sever.load("audio/pluck_001.ogg");
+            let sound_effect_2 = asset_sever.load("audio/pluck_002.ogg");
+
+            let sound_effect = if random::<f32>() > 0.5 {
+                sound_effect_1
+            } else {
+                sound_effect_2
+            };
+
+            commands.spawn(AudioBundle {
+                source: sound_effect,
+                ..default()
+            });
+        }
+    }
+}
+
+pub fn confine_enemy_movement(
+    mut enemy_query: Query<&mut Transform, With<Enemy>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    let half_enemy_size = ENEMY_SIZE / 2.0;
+    let x_min = 0.0 + half_enemy_size;
+    let x_max = window.width() - half_enemy_size;
+    let y_min = 0.0 + half_enemy_size;
+    let y_max = window.height() - half_enemy_size;
+
+    for mut enemy_transform in enemy_query.iter_mut() {
+        let mut translation = enemy_transform.translation;
+
+        // Bound the enemy x position
+        if translation.x < x_min {
+            translation.x = x_min;
+        } else if translation.x > x_max {
+            translation.x = x_max;
+        }
+
+        // Bound the enemy y position
+        if translation.y < y_min {
+            translation.y = y_min;
+        } else if translation.y > y_max {
+            translation.y = y_max;
+        }
+
+        enemy_transform.translation = translation;
     }
 }
