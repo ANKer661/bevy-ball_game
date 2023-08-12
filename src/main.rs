@@ -33,7 +33,7 @@ pub fn spwan_player(
         SpriteBundle {
             transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
             texture: asset_server.load("sprites/ball_blue_large.png"),
-            ..Default::default()
+            ..default()
         },
         Player {},
     ));
@@ -54,7 +54,7 @@ pub fn spawn_enemy(
             SpriteBundle {
                 transform: Transform::from_xyz(random_x, random_y, 0.0),
                 texture: asset_server.load("sprites/ball_red_large.png"),
-                ..Default::default()
+                ..default()
             },
             Enemy {},
         ));
@@ -65,8 +65,8 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
     let window = window_query.get_single().unwrap();
 
     commands.spawn(Camera2dBundle {
-        transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
-        ..Default::default()
+        transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 1.0),
+        ..default()
     });
 }
 
