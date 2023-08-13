@@ -5,20 +5,30 @@ pub const PLAYER_SIZE: f32 = 64.0; // This is player sprite size.
 pub const PLAYER_SPEED: f32 = 500.0;
 pub const NUMBER_OF_ENEMY: usize = 4;
 pub const ENEMY_SPEED: f32 = 200.0;
-pub const ENEMY_SIZE: f32 = 64.0;
+pub const ENEMY_SIZE: f32 = 64.0; // This is enemy sprite size.
+pub const NUMBER_OF_STAR: usize = 10;
+pub const STAR_SIZE: f32 = 30.0; // This is star sprite size.
+pub const STAR_SPAWN_TIME: f32 = 1.0;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .init_resource::<Score>()
+        .init_resource::<StarSpawnTimer>()
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spwan_player)
         .add_systems(Startup, spawn_enemy)
+        .add_systems(Startup, spawn_star)
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
         .add_systems(Update, enemy_movement)
         .add_systems(Update, update_enemy_direction)
         .add_systems(Update, confine_enemy_movement)
         .add_systems(Update, enemy_hit_player)
+        .add_systems(Update, player_hit_star)
+        .add_systems(Update, update_score)
+        .add_systems(Update, tick_star_spawn)
+        .add_systems(Update, spawn_star_overtime)
         .run()
 }
 
@@ -28,6 +38,33 @@ pub struct Player {}
 #[derive(Component)]
 pub struct Enemy {
     pub direction: Vec2,
+}
+
+#[derive(Component)]
+pub struct Star {}
+
+#[derive(Resource)]
+pub struct Score {
+    pub value: u32,
+}
+
+impl Default for Score {
+    fn default() -> Self {
+        Score { value: 0 }
+    }
+}
+
+#[derive(Resource)]
+pub struct StarSpawnTimer {
+    pub timer: Timer,
+}
+
+impl Default for StarSpawnTimer {
+    fn default() -> Self {
+        StarSpawnTimer {
+            timer: Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating),
+        }
+    }
 }
 
 pub fn spwan_player(
@@ -67,6 +104,28 @@ pub fn spawn_enemy(
             Enemy {
                 direction: Vec2::new(random::<f32>(), random::<f32>()).normalize(),
             },
+        ));
+    }
+}
+
+pub fn spawn_star(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    for _ in 0..NUMBER_OF_STAR {
+        let random_x = random::<f32>() * window.width();
+        let random_y = random::<f32>() * window.height();
+
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                texture: asset_server.load("sprites/star.png"),
+                ..default()
+            },
+            Star {},
         ));
     }
 }
@@ -231,7 +290,7 @@ pub fn confine_enemy_movement(
 pub fn enemy_hit_player(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Transform), With<Player>>,
-    mut enemy_query: Query<&Transform, With<Enemy>>,
+    enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
@@ -252,5 +311,63 @@ pub fn enemy_hit_player(
                 commands.entity(player_entity).despawn();
             }
         }
+    }
+}
+
+pub fn player_hit_star(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<Player>>,
+    star_query: Query<(Entity, &Transform), With<Star>>,
+    asset_server: Res<AssetServer>,
+    mut score: ResMut<Score>,
+) {
+    if let Ok(player_transform) = player_query.get_single() {
+        for (star_entity, star_transform) in star_query.iter() {
+            let distance = player_transform
+                .translation
+                .distance(star_transform.translation);
+
+            if distance < PLAYER_SIZE / 2.0 + STAR_SIZE / 2.0 {
+                println!("Player hit star!");
+                score.value += 1;
+                commands.spawn(AudioBundle {
+                    source: asset_server.load("audio/impactMetal_medium_000.ogg"),
+                    ..default()
+                });
+                commands.entity(star_entity).despawn();
+            }
+        }
+    }
+}
+
+pub fn update_score(score: Res<Score>) {
+    if score.is_changed() {
+        println!("Score: {}", score.value.to_string())
+    }
+}
+
+pub fn tick_star_spawn(mut star_spawn_timer: ResMut<StarSpawnTimer>, time: Res<Time>) {
+    star_spawn_timer.timer.tick(time.delta());
+}
+
+pub fn spawn_star_overtime(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+    star_spawn_timer: Res<StarSpawnTimer>,
+) {
+    if star_spawn_timer.timer.finished() {
+        let window = window_query.get_single().unwrap();
+        let random_x = random::<f32>() * window.width();
+        let random_y = random::<f32>() * window.height();
+
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                texture: asset_server.load("sprites/star.png"),
+                ..default()
+            },
+            Star {},
+        ));
     }
 }
