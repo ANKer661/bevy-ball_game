@@ -18,6 +18,7 @@ fn main() {
         .add_systems(Update, enemy_movement)
         .add_systems(Update, update_enemy_direction)
         .add_systems(Update, confine_enemy_movement)
+        .add_systems(Update, enemy_hit_player)
         .run()
 }
 
@@ -152,7 +153,7 @@ pub fn update_enemy_direction(
     mut enemy_query: Query<(&Transform, &mut Enemy)>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mut commands: Commands,
-    asset_sever: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
 ) {
     let window = window_query.get_single().unwrap();
 
@@ -177,8 +178,8 @@ pub fn update_enemy_direction(
 
         // Play SFX
         if direction_changed {
-            let sound_effect_1 = asset_sever.load("audio/pluck_001.ogg");
-            let sound_effect_2 = asset_sever.load("audio/pluck_002.ogg");
+            let sound_effect_1 = asset_server.load("audio/pluck_001.ogg");
+            let sound_effect_2 = asset_server.load("audio/pluck_002.ogg");
 
             let sound_effect = if random::<f32>() > 0.5 {
                 sound_effect_1
@@ -224,5 +225,32 @@ pub fn confine_enemy_movement(
         }
 
         enemy_transform.translation = translation;
+    }
+}
+
+pub fn enemy_hit_player(
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &Transform), With<Player>>,
+    mut enemy_query: Query<&Transform, With<Enemy>>,
+    asset_server: Res<AssetServer>,
+) {
+    if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
+        for enmey_transform in enemy_query.iter() {
+            let distance = player_transform
+                .translation
+                .distance(enmey_transform.translation);
+
+            let player_radius = PLAYER_SIZE / 2.0;
+            let enmey_radius = ENEMY_SIZE / 2.0;
+
+            if distance < player_radius + enmey_radius {
+                println!("Enemy hit player! Game over!");
+                commands.spawn(AudioBundle {
+                    source: asset_server.load("audio/explosionCrunch_000.ogg"),
+                    ..default()
+                });
+                commands.entity(player_entity).despawn();
+            }
+        }
     }
 }
