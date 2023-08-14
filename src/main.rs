@@ -1,12 +1,12 @@
+use bevy::prelude::*;
+
 pub mod enemy;
+pub mod events;
 pub mod player;
 pub mod score;
 pub mod star;
-
-pub mod events;
 pub mod systems;
 
-use bevy::prelude::*;
 use enemy::EnemyPlugin;
 use events::*;
 use player::PlayerPlugin;
