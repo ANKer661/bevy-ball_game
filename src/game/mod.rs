@@ -21,19 +21,23 @@ impl Plugin for GamePlugin {
         app.add_state::<SimulationState>()
             // events
             .add_event::<GameOver>()
+            // on enter state
+            .add_systems(OnEnter(AppState::Game), pause_simulation)
             // plugins
             .add_plugins(EnemyPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(ScorePlugin)
             .add_plugins(StarPlugin)
             // systems
-            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)));
+            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)))
+            // on exit state
+            .add_systems(OnExit(AppState::Game), resume_simulation); // why?
     }
 }
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum SimulationState {
-    Running,
     #[default]
+    Running,
     Paused,
 }
