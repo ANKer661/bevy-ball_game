@@ -14,8 +14,7 @@ use player::PlayerPlugin;
 use score::ScorePlugin;
 use star::StarPlugin;
 use systems::*;
-
-use self::ui::GameUIPlugin;
+use ui::GameUIPlugin;
 
 pub struct GamePlugin;
 
@@ -25,7 +24,7 @@ impl Plugin for GamePlugin {
             // events
             .add_event::<GameOver>()
             // on enter state
-            .add_systems(OnEnter(AppState::Game), pause_simulation)
+            // .add_systems(OnEnter(AppState::Game), resume_simulation)
             // plugins
             .add_plugins(EnemyPlugin)
             .add_plugins(PlayerPlugin)
@@ -33,9 +32,9 @@ impl Plugin for GamePlugin {
             .add_plugins(StarPlugin)
             .add_plugins(GameUIPlugin)
             // systems
-            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)))
+            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)));
             // on exit state
-            .add_systems(OnExit(AppState::Game), resume_simulation); // why?
+            // .add_systems(OnExit(AppState::Game), resume_simulation)
     }
 }
 
