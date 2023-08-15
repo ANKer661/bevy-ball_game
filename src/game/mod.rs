@@ -5,6 +5,7 @@ mod player;
 mod score;
 mod star;
 mod systems;
+mod ui;
 
 use crate::events::*;
 use crate::AppState;
@@ -13,6 +14,8 @@ use player::PlayerPlugin;
 use score::ScorePlugin;
 use star::StarPlugin;
 use systems::*;
+
+use self::ui::GameUIPlugin;
 
 pub struct GamePlugin;
 
@@ -28,6 +31,7 @@ impl Plugin for GamePlugin {
             .add_plugins(PlayerPlugin)
             .add_plugins(ScorePlugin)
             .add_plugins(StarPlugin)
+            .add_plugins(GameUIPlugin)
             // systems
             .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)))
             // on exit state
