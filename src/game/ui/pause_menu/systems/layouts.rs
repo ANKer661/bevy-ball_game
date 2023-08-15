@@ -27,23 +27,24 @@ pub fn build_pause_menu(commands: &mut Commands, asset_server: &Res<AssetServer>
         ))
         .with_children(|parent| {
             // === Title ===
-            parent.spawn(NodeBundle {
-                style: TITLE_STYLE,
-                ..default()
-            })
-            .with_children(|parent| {
-                parent.spawn(TextBundle {
-                    text: Text {
-                        sections: vec![TextSection::new(
-                            "Pause Menu".to_string(),
-                            get_title_text_style(&asset_server),
-                        )],
-                        alignment: TextAlignment::Center,
-                        ..default()
-                    },
+            parent
+                .spawn(NodeBundle {
+                    style: TITLE_STYLE,
                     ..default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Pause Menu".to_string(),
+                                get_title_text_style(&asset_server),
+                            )],
+                            alignment: TextAlignment::Center,
+                            ..default()
+                        },
+                        ..default()
+                    });
                 });
-            });
             // === Resume Button ===
             parent
                 .spawn((
