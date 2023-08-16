@@ -25,13 +25,11 @@ pub fn build_hud(commands: &mut Commands, asset_server: &Res<AssetServer>) -> En
         .with_children(|parent| {
             // === Star Counter ===
             parent
-                .spawn((
-                    NodeBundle {
-                        style: COUNTER_STYLE,
-                        ..default()
-                    },
-                    StarCounter { star_number: 0 },
-                ))
+                .spawn(NodeBundle {
+                    style: LEFT_COUNTER_STYLE,
+                    background_color: BACKGROUND_COLOR.into(),
+                    ..default()
+                })
                 .with_children(|parent| {
                     // star image
                     parent.spawn(ImageBundle {
@@ -40,40 +38,44 @@ pub fn build_hud(commands: &mut Commands, asset_server: &Res<AssetServer>) -> En
                         ..default()
                     });
                     // star number (score)
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "0".to_string(),
-                                get_text_style(&asset_server),
-                            )],
-                            alignment: TextAlignment::Center,
+                    parent.spawn((
+                        TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    "0".to_string(),
+                                    get_text_style(&asset_server),
+                                )],
+                                alignment: TextAlignment::Center,
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    });
+                        ScoreText {},
+                    ));
                 });
             // === Enemy Counter ===
             parent
-                .spawn((
-                    NodeBundle {
-                        style: COUNTER_STYLE,
-                        ..default()
-                    },
-                    EnemyCounter { enemy_number: 0 },
-                ))
+                .spawn(NodeBundle {
+                    style: RIGHT_COUNTER_STYLE,
+                    background_color: BACKGROUND_COLOR.into(),
+                    ..default()
+                })
                 .with_children(|parent| {
-                    // enmey number
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "0".to_string(),
-                                get_text_style(&asset_server),
-                            )],
-                            alignment: TextAlignment::Center,
+                    // enemy number (score)
+                    parent.spawn((
+                        TextBundle {
+                            text: Text {
+                                sections: vec![TextSection::new(
+                                    "0".to_string(),
+                                    get_text_style(&asset_server),
+                                )],
+                                alignment: TextAlignment::Center,
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    });
+                        EnemyText {},
+                    ));
                     // enemy image
                     parent.spawn(ImageBundle {
                         style: IMAGE_STYLE,

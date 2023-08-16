@@ -21,18 +21,20 @@ pub fn build_pause_menu(commands: &mut Commands, asset_server: &Res<AssetServer>
         .spawn((
             NodeBundle {
                 style: PAUSE_MENU_STYLE,
+                z_index: ZIndex::Local(1),
                 ..default()
             },
             PauseMenu {},
         ))
         .with_children(|parent| {
-            // === Title ===
             parent
                 .spawn(NodeBundle {
-                    style: TITLE_STYLE,
+                    style: PAUSE_MENU_CONTAINER_STYLE,
+                    background_color: BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
+                    // === Title ===
                     parent.spawn(TextBundle {
                         text: Text {
                             sections: vec![TextSection::new(
@@ -44,75 +46,75 @@ pub fn build_pause_menu(commands: &mut Commands, asset_server: &Res<AssetServer>
                         },
                         ..default()
                     });
-                });
-            // === Resume Button ===
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: BUTTON_STYLE,
-                        background_color: NORMAL_BUTTON_COLOR.into(),
-                        ..default()
-                    },
-                    ResumeButton {},
-                ))
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Resume".to_string(),
-                                get_button_text_style(&asset_server),
-                            )],
-                            alignment: TextAlignment::Center,
-                            ..default()
-                        },
-                        ..default()
-                    });
-                });
-            // === Main Menu Button ===
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: BUTTON_STYLE,
-                        background_color: NORMAL_BUTTON_COLOR.into(),
-                        ..default()
-                    },
-                    MainMenuButton {},
-                ))
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Main Menu".to_string(),
-                                get_button_text_style(&asset_server),
-                            )],
-                            alignment: TextAlignment::Center,
-                            ..default()
-                        },
-                        ..default()
-                    });
-                });
-            // === Quit Button ===
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: BUTTON_STYLE,
-                        background_color: NORMAL_BUTTON_COLOR.into(),
-                        ..default()
-                    },
-                    QuitButton {},
-                ))
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            sections: vec![TextSection::new(
-                                "Quit".to_string(),
-                                get_button_text_style(&asset_server),
-                            )],
-                            alignment: TextAlignment::Center,
-                            ..default()
-                        },
-                        ..default()
-                    });
+                    // === Resume Button ===
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: BUTTON_STYLE,
+                                background_color: NORMAL_BUTTON_COLOR.into(),
+                                ..default()
+                            },
+                            ResumeButton {},
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text {
+                                    sections: vec![TextSection::new(
+                                        "Resume".to_string(),
+                                        get_button_text_style(&asset_server),
+                                    )],
+                                    alignment: TextAlignment::Center,
+                                    ..default()
+                                },
+                                ..default()
+                            });
+                        });
+                    // === Main Menu Button ===
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: BUTTON_STYLE,
+                                background_color: NORMAL_BUTTON_COLOR.into(),
+                                ..default()
+                            },
+                            MainMenuButton {},
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text {
+                                    sections: vec![TextSection::new(
+                                        "Main Menu".to_string(),
+                                        get_button_text_style(&asset_server),
+                                    )],
+                                    alignment: TextAlignment::Center,
+                                    ..default()
+                                },
+                                ..default()
+                            });
+                        });
+                    // === Quit Button ===
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: BUTTON_STYLE,
+                                background_color: NORMAL_BUTTON_COLOR.into(),
+                                ..default()
+                            },
+                            QuitButton {},
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text {
+                                    sections: vec![TextSection::new(
+                                        "Quit".to_string(),
+                                        get_button_text_style(&asset_server),
+                                    )],
+                                    alignment: TextAlignment::Center,
+                                    ..default()
+                                },
+                                ..default()
+                            });
+                        });
                 });
         })
         .id();

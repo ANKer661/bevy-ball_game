@@ -32,9 +32,9 @@ impl Plugin for GamePlugin {
             .add_plugins(StarPlugin)
             .add_plugins(GameUIPlugin)
             // systems
-            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)));
+            .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)))
             // on exit state
-            //.add_systems(OnExit(AppState::Game), resume_simulation);
+            .add_systems(OnExit(AppState::Game), resume_simulation);
     }
 }
 

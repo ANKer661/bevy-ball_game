@@ -11,17 +11,19 @@ pub const GAMEOVER_MENU_STYLE: Style = {
     style.flex_direction = FlexDirection::Column;
     style.justify_content = JustifyContent::Center;
     style.align_items = AlignItems::Center;
-    style.row_gap = Val::Px(8.0);
-    style.column_gap = Val::Px(8.0);
+    style.position_type = PositionType::Absolute;
     style
 };
 
-pub const TITLE_STYLE: Style = {
+pub const GAMEOVER_MENU_CONTAINER_STYLE: Style = {
     let mut style = Style::DEFAULT;
-    style.width = Val::Px(600.0);
-    style.height = Val::Px(120.0);
+    style.width = Val::Px(400.0);
+    style.height = Val::Px(400.0);
+    style.flex_direction = FlexDirection::Column;
     style.justify_content = JustifyContent::Center;
     style.align_items = AlignItems::Center;
+    style.row_gap = Val::Px(8.0);
+    style.column_gap = Val::Px(8.0);
     style
 };
 

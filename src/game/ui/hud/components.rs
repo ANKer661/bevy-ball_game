@@ -4,11 +4,7 @@ use bevy::prelude::Component;
 pub struct HUD {}
 
 #[derive(Component)]
-pub struct StarCounter {
-    pub star_number: u32,
-}
+pub struct ScoreText {}
 
 #[derive(Component)]
-pub struct EnemyCounter {
-    pub enemy_number: u32,
-}
+pub struct EnemyText {}

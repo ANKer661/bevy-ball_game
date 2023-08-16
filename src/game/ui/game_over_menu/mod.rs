@@ -2,6 +2,7 @@ use crate::AppState;
 use bevy::prelude::*;
 use systems::interactions::*;
 use systems::layouts::*;
+use systems::updates::*;
 
 pub mod components;
 pub mod styles;
@@ -21,7 +22,7 @@ impl Plugin for GameOverMenuPlugin {
                     interact_with_restart_button,
                     interact_with_main_menu_button,
                     interact_with_quit_button,
-                    update_final_text,
+                    update_final_score,
                 )
                     .run_if(in_state(AppState::GameOver)),
             )

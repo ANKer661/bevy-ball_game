@@ -75,5 +75,3 @@ pub fn interact_with_quit_button(
         }
     }
 }
-
-pub fn update_final_text () {}
