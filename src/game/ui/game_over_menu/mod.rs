@@ -22,7 +22,7 @@ impl Plugin for GameOverMenuPlugin {
                     interact_with_restart_button,
                     interact_with_main_menu_button,
                     interact_with_quit_button,
-                    update_final_score,
+                    update_final_score
                 )
                     .run_if(in_state(AppState::GameOver)),
             )

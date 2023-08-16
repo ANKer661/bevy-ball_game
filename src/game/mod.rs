@@ -26,11 +26,11 @@ impl Plugin for GamePlugin {
             // on enter state
             //.add_systems(OnEnter(AppState::Game), pause_simulation)
             // plugins
+            .add_plugins(GameUIPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(ScorePlugin)
             .add_plugins(StarPlugin)
-            .add_plugins(GameUIPlugin)
             // systems
             .add_systems(Update, toogle_similation.run_if(in_state(AppState::Game)))
             // on exit state
